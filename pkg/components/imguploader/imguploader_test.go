@@ -10,6 +10,36 @@ import (
 
 func TestImageUploaderFactory(t *testing.T) {
 	Convey("Can create image uploader for ", t, func() {
+		Convey("MINIO uploader", func() {
+            var err error
+
+            setting.NewConfigContext(&setting.CommandLineArgs{
+            	HomePath: "../../../",
+            })
+
+            setting.ImageUploadProvider = "minio"
+
+            minioSec, err := setting.Cfg.GetSection("external_image_storage.minio")
+            minioSec.NewKey("endpoint", "localhost:9000")
+            minioSec.NewKey("bucketName", "alerts")
+            minioSec.NewKey("accessKeyID", "admin")
+            minioSec.NewKey("secretAccessKey", "password")
+            minioSec.NewKey("expiry", "7")
+            minioSec.NewKey("useSSL", false)
+
+            uploader, err := NewImageUploader()
+
+            So(err, ShouldBeNil)
+            original, ok := uploader.(*MinioUploader)
+
+            So(ok, ShouldBeTrue)
+            So(original.endpoint, ShouldEqual, "localhost:9000")
+            So(original.bucketName, ShouldEqual, "alerts")
+            So(original.accessKeyID, ShouldEqual, "admin")
+            So(original.expiry, ShouldEqual, "7")
+            So(original.useSSL, ShouldEqual, false)
+        })
+
 		Convey("S3ImageUploader config", func() {
 			setting.NewConfigContext(&setting.CommandLineArgs{
 				HomePath: "../../../",
