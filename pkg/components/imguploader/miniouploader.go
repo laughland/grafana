@@ -17,6 +17,7 @@ type MinioUploader struct {
 	bucketName      string
 	accessKeyID     string
 	secretAccessKey string
+	expiry          string
 	useSSL          bool
 	log             log.Logger
 }
@@ -27,6 +28,7 @@ func NewMinioUploader(endpoint string, bucketName string, accessKeyID string, se
 		bucketName:      bucketName,
 		accessKeyID:     accessKeyID,
 		secretAccessKey: secretAccessKey,
+		expiry:          expiry,
 		useSSL:          useSSL,
 	}
 }
@@ -56,8 +58,9 @@ func (u *MinioUploader) Upload(ctx context.Context, imageDiskPath string) (strin
     reqParams := make(url.Values)
     reqParams.Set("response-content-disposition", "attachment; filename=\"objectName\"")
 
-    // Generates a presigned url which expires in a day.
-    presignedURL, err := minioClient.PresignedGetObject(u.bucketName, objectName, time.Second * 24 * 60 * 60 * 7, reqParams)
+    // Generates a presigned url which expires per the expiry config setting
+    secondsToExpire := (time.Second * 24 * 60 * 60) * (u.expiry)
+    presignedURL, err := minioClient.PresignedGetObject(u.bucketName, objectName, secondsToExpire, reqParams)
     if err != nil {
         fmt.Println(err)
     }

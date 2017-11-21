@@ -24,6 +24,8 @@ func TestImageUploaderFactory(t *testing.T) {
             minioSec.NewKey("bucketName", "alerts")
             minioSec.NewKey("accessKeyID", "admin")
             minioSec.NewKey("secretAccessKey", "password")
+            minioSec.NewKey("expiry", "7")
+            minioSec.NewKey("useSSL", false)
 
             uploader, err := NewImageUploader()
 
@@ -34,7 +36,8 @@ func TestImageUploaderFactory(t *testing.T) {
             So(original.endpoint, ShouldEqual, "localhost:9000")
             So(original.bucketName, ShouldEqual, "alerts")
             So(original.accessKeyID, ShouldEqual, "admin")
-            So(original.secretAccessKey, ShouldEqual, "password")
+            So(original.expiry, ShouldEqual, "7")
+            So(original.useSSL, ShouldEqual, false)
         })
 
 		Convey("S3ImageUploader config", func() {

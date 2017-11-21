@@ -20,9 +20,7 @@ func (NopImageUploader) Upload(ctx context.Context, path string) (string, error)
 }
 
 func NewImageUploader() (ImageUploader, error) {
-
 	switch setting.ImageUploadProvider {
-
 	case "minio":
     	minio, err := setting.Cfg.GetSection("external_image_storage.minio")
     	if err != nil {
@@ -33,9 +31,10 @@ func NewImageUploader() (ImageUploader, error) {
     	bucketName := minio.Key("bucketName").MustString("")
     	accessKeyID := minio.Key("accessKeyID").MustString("")
     	secretAccessKey := minio.Key("secretAccessKey").MustString("")
+    	expiry := minio.Key("expiry").MustString("")
     	useSSL := minio.Key("useSSL").MustBool(true)
 
-        return NewMinioUploader(endpoint, bucketName, accessKeyID, secretAccessKey, useSSL), nil
+        return NewMinioUploader(endpoint, bucketName, accessKeyID, secretAccessKey, expiry, useSSL), nil
 	case "s3":
 		s3sec, err := setting.Cfg.GetSection("external_image_storage.s3")
 		if err != nil {
